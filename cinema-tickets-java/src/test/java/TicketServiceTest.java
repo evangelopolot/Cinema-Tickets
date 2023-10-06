@@ -21,7 +21,9 @@ public class TicketServiceTest {
     @ParameterizedTest
     @CsvSource({"-1000000", "-1","0"})
     @DisplayName("Test purchaseTickets when given invalid IDs which are less than zero, then an exception should be thrown")
-    public void testPurchaseTicketsGivenInvalidIDsThrowException(){
-        assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(-1L));
+    public void testPurchaseTicketsGivenInvalidIDsThrowException(long input){
+        assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(input));
     }
+
+
 }
