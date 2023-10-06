@@ -16,12 +16,21 @@ public class TicketServiceImpl implements TicketService {
             throw new InvalidPurchaseException();
         }
 
+        boolean adultTicket = false;
         for (TicketTypeRequest request : ticketTypeRequests) {
             int quantity = request.getNoOfTickets();
             if(quantity > 20 || quantity < 0){
                 throw new InvalidPurchaseException();
             }
+            if (request.getTicketType() == TicketTypeRequest.Type.ADULT){
+                adultTicket = true;
+            }
         }
+
+        if(!adultTicket){
+            throw new InvalidPurchaseException();
+        }
+
     }
 
 }
