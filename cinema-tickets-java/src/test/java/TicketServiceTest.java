@@ -19,7 +19,6 @@ public class TicketServiceTest {
         this.testService = new TicketServiceImpl();
     }
 
-
     @ParameterizedTest
     @CsvSource({"-1000000", "-1","0"})
     @DisplayName("Test purchaseTickets when given invalid IDs which are less than zero, then an exception should be thrown")
@@ -27,10 +26,11 @@ public class TicketServiceTest {
         assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(input));
     }
 
-    @Test
-    @DisplayName("Test purchaseTicket given number of tickets above the maximum, then an exception should be thrown")
-    public void testPurchaseTicketsGivenValidIDAndInvalidTicketTypeThrowException() {
-        typeRequest = new TicketTypeRequest(TicketTypeRequest.Type.ADULT,21);
+    @ParameterizedTest
+    @CsvSource({"21", "-1"})
+    @DisplayName("Test purchaseTicket given number of tickets above the maximum or below zero, then an exception should be thrown")
+    public void testPurchaseTicketsGivenValidIDAndInvalidTicketTypeThrowException(int input) {
+        typeRequest = new TicketTypeRequest(TicketTypeRequest.Type.ADULT,input);
         assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(1L, typeRequest));
     }
 

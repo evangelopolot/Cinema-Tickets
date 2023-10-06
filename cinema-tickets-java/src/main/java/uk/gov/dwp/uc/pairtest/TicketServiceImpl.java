@@ -18,7 +18,7 @@ public class TicketServiceImpl implements TicketService {
 
         for (TicketTypeRequest request : ticketTypeRequests) {
             int quantity = request.getNoOfTickets();
-            if(quantity > 20){
+            if(quantity > 20 || quantity < 0){
                 throw new InvalidPurchaseException();
             }
         }
