@@ -34,10 +34,11 @@ public class TicketServiceTest {
         assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(1L, typeRequest));
     }
 
-    @Test
-    @DisplayName("Test purchaseTicket given an infant ticket with no adult ticket, then an exception should be thrown")
-    public void testPurchaseTicketGivenInfantTicketAndNoAdultTicketThrowAnException(){
-        typeRequest = new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 2);
+    @ParameterizedTest
+    @CsvSource({"'INFANT',2", "'CHILD', 2"})
+    @DisplayName("Test purchaseTicket given an infant or child ticket with no adult ticket, then an exception should be thrown")
+    public void testPurchaseTicketGivenInfantTicketAndNoAdultTicketThrowAnException(TicketTypeRequest.Type type, int numOfTickets){
+        typeRequest = new TicketTypeRequest(type, numOfTickets);
         assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(1L, typeRequest));
     }
 
