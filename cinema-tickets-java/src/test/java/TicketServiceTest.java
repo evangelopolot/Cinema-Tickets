@@ -17,7 +17,6 @@ import static org.mockito.Mockito.*;
 
 public class TicketServiceTest {
     private TicketService testService;
-    private TicketTypeRequest typeRequest;
     @Mock
     private TicketPaymentService paymentService;
     @Mock
@@ -31,54 +30,54 @@ public class TicketServiceTest {
 
     @ParameterizedTest
     @CsvSource({"-1000000", "-1","0"})
-    @DisplayName("Test purchaseTickets when given invalid IDs which are less than zero, then an exception should be thrown")
+    @DisplayName("Test purchaseTickets when given invalid IDs which are less than one, then an exception should be thrown")
     public void testPurchaseTicketsGivenInvalidIDsThrowException(long input){
         assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(input));
     }
     @Test
     @DisplayName("test purchaseTicket when given an invalid ticket type, throws exception")
     public void testPurchaseTicketThrowsAnExceptionWhenGivenInvalidTicketType(){
-        typeRequest = new TicketTypeRequest(null, 1);
-        assertThrows(InvalidPurchaseException.class, ()-> testService.purchaseTickets(2L, typeRequest));
+        assertThrows(InvalidPurchaseException.class, ()-> testService.purchaseTickets(2L,
+                createTicketRequest(null, 1)));
     }
 
     @ParameterizedTest
-    @CsvSource({"21", "-1"})
-    @DisplayName("Test purchaseTicket given number of tickets above the maximum or below zero, then an exception should be thrown")
+    @CsvSource({"21", "-1", "0"})
+    @DisplayName("Test purchaseTicket given number of tickets above the maximum or below 1, then an exception should be thrown")
     public void testPurchaseTicketsGivenValidIDAndInvalidTicketTypeThrowException(int input) {
-        typeRequest = new TicketTypeRequest(TicketTypeRequest.Type.ADULT,input);
-        assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(1L, typeRequest));
+        assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(1L,
+                createTicketRequest(TicketTypeRequest.Type.ADULT,input)));
     }
 
     @ParameterizedTest
     @CsvSource({"'INFANT',2", "'CHILD', 2"})
     @DisplayName("Test purchaseTicket given an infant or child ticket with no adult ticket, then an exception should be thrown")
     public void testPurchaseTicketGivenInfantTicketAndNoAdultTicketThrowAnException(TicketTypeRequest.Type type, int numOfTickets){
-        typeRequest = new TicketTypeRequest(type, numOfTickets);
-        assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(1L, typeRequest));
+        assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(1L,
+                createTicketRequest(type, numOfTickets)));
     }
 
     @Test
-    @DisplayName("Test purchaseTicket given a valid ticket calls makePayment")
+    @DisplayName("Test purchaseTicket given a valid ticket calls makePayment with correct total cost")
     public void testPurchaseTicketGivenValidTicketRequestCallsMakePayment(){
-        typeRequest = new TicketTypeRequest(TicketTypeRequest.Type.ADULT,1);
-        TicketTypeRequest typeRequest2 = new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2);
-        TicketTypeRequest typeRequest3 = new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1);
-        testService.purchaseTickets(1L,typeRequest,typeRequest2,typeRequest3);
+        testService.purchaseTickets(1L,
+                createTicketRequest(TicketTypeRequest.Type.ADULT,1),
+                createTicketRequest(TicketTypeRequest.Type.CHILD, 2),
+                createTicketRequest(TicketTypeRequest.Type.INFANT, 1));
         verify(paymentService, times(1)).makePayment(1L,40);
     }
 
     @Test
-    @DisplayName("Test purchaseTicket given valid ticket requests correctly reserves seats for only adult and child tickets")
+    @DisplayName("Test purchaseTicket when given valid ticket requests, it correctly reserves seats for only adult and child tickets")
     public void testPurchaseTicketOnlyReservesSeatsForAdultAndChildTickets(){
-        typeRequest = new TicketTypeRequest(TicketTypeRequest.Type.ADULT,1);
-        TicketTypeRequest typeRequest2 = new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2);
-        TicketTypeRequest typeRequest3 = new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1);
-        testService.purchaseTickets(1L,typeRequest,typeRequest2,typeRequest3);
+        testService.purchaseTickets(1L,
+                createTicketRequest(TicketTypeRequest.Type.ADULT,1),
+                createTicketRequest(TicketTypeRequest.Type.CHILD, 2),
+                createTicketRequest(TicketTypeRequest.Type.INFANT, 1));
         verify(seatReservationService, times(1)).reserveSeat(1L,3);
     }
 
-
-
-
+    private TicketTypeRequest createTicketRequest(TicketTypeRequest.Type type, int quantity) {
+        return new TicketTypeRequest(type, quantity);
+    }
 }

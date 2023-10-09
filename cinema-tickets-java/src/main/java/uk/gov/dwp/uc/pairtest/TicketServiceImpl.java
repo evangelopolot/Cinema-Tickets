@@ -8,14 +8,14 @@ import uk.gov.dwp.uc.pairtest.exception.InvalidPurchaseException;
 import java.util.HashMap;
 
 public class TicketServiceImpl implements TicketService {
-    public static final int MAXIMUM_NUMBER_OF_TICKETS = 20;
-    public static final int CHILD_TICKET_PRICE = 10;
-    public static final int ADULT_TICKET_PRICE = 20;
+    private static final int MAXIMUM_NUMBER_OF_TICKETS = 20;
+    private static final int CHILD_TICKET_PRICE = 10;
+    private static final int ADULT_TICKET_PRICE = 20;
     /**
      * Should only have private methods other than the one below.
      */
-    private TicketPaymentService paymentService;
-    private SeatReservationService seatReservationService;
+    private final TicketPaymentService paymentService;
+    private final SeatReservationService seatReservationService;
     public TicketServiceImpl(TicketPaymentService paymentService, SeatReservationService seatReservationService){
         this.paymentService = paymentService;
         this.seatReservationService = seatReservationService;
@@ -53,7 +53,7 @@ public class TicketServiceImpl implements TicketService {
     }
 
     private void checkValidTicketRequest(TicketTypeRequest request){
-        if(request.getTicketType() == null || request.getNoOfTickets() > MAXIMUM_NUMBER_OF_TICKETS || request.getNoOfTickets() < 0){
+        if(request.getTicketType() == null || request.getNoOfTickets() > MAXIMUM_NUMBER_OF_TICKETS || request.getNoOfTickets() <= 0){
             throw new InvalidPurchaseException();
         }
     }
