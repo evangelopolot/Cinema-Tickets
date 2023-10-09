@@ -28,23 +28,22 @@ public class TicketServiceImpl implements TicketService {
 
         boolean adultTicket = false;
         for (TicketTypeRequest request : ticketTypeRequests) {
-            if(request.getTicketType() == null){
-                throw new InvalidPurchaseException();
-            }
-            int quantity = request.getNoOfTickets();
-            if(quantity > MAXIMUM_NUMBER_OF_TICKETS || quantity < 0){
-                throw new InvalidPurchaseException();
-            }
+            checkValidTicketRequest(request);
             if (request.getTicketType() == TicketTypeRequest.Type.ADULT){
                 adultTicket = true;
             }
-            totalCost += calculateTicketCost(request.getTicketType(),quantity);
+            totalCost += calculateTicketCost(request.getTicketType(),request.getNoOfTickets());
         }
 
         if(!adultTicket){
             throw new InvalidPurchaseException();
-        }  else {
-            paymentService.makePayment(accountId,totalCost);
+        }
+        paymentService.makePayment(accountId,totalCost);
+    }
+
+    private void checkValidTicketRequest(TicketTypeRequest request){
+        if(request.getTicketType() == null || request.getNoOfTickets() > MAXIMUM_NUMBER_OF_TICKETS || request.getNoOfTickets() < 0){
+            throw new InvalidPurchaseException();
         }
     }
 
