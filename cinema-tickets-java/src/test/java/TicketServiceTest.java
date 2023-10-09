@@ -54,6 +54,7 @@ public class TicketServiceTest {
     public void testPurchaseTicketGivenValidTicketRequestCallsMakePayment(){
         typeRequest = new TicketTypeRequest(TicketTypeRequest.Type.ADULT,1);
         TicketTypeRequest typeRequest2 = new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2);
+        TicketTypeRequest typeRequest3 = new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1);
         testService.purchaseTickets(1L,typeRequest,typeRequest2);
         verify(paymentService, times(1)).makePayment(1L,40);
     }
