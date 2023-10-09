@@ -11,6 +11,10 @@ public class TicketServiceImpl implements TicketService {
     /**
      * Should only have private methods other than the one below.
      */
+    TicketPaymentService paymentService;
+    public TicketServiceImpl(TicketPaymentService paymentService){
+        this.paymentService = paymentService;
+    }
 
     @Override
     public void purchaseTickets(Long accountId, TicketTypeRequest... ticketTypeRequests) throws InvalidPurchaseException {
@@ -31,9 +35,10 @@ public class TicketServiceImpl implements TicketService {
 
         if(!adultTicket){
             throw new InvalidPurchaseException();
+        }  else {
+            paymentService.makePayment(accountId,40);
         }
 
-        TicketPaymentService paymentService = new TicketPaymentServiceImpl();
 
     }
 
