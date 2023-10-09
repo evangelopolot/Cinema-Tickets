@@ -1,6 +1,7 @@
 package uk.gov.dwp.uc.pairtest;
 
 import thirdparty.paymentgateway.TicketPaymentService;
+import thirdparty.seatbooking.SeatReservationService;
 import uk.gov.dwp.uc.pairtest.domain.TicketTypeRequest;
 import uk.gov.dwp.uc.pairtest.exception.InvalidPurchaseException;
 
@@ -13,14 +14,19 @@ public class TicketServiceImpl implements TicketService {
     /**
      * Should only have private methods other than the one below.
      */
-    TicketPaymentService paymentService;
-    public TicketServiceImpl(TicketPaymentService paymentService){
+    private TicketPaymentService paymentService;
+    private SeatReservationService seatReservationService;
+    public TicketServiceImpl(TicketPaymentService paymentService, SeatReservationService seatReservationService){
         this.paymentService = paymentService;
+        this.seatReservationService = seatReservationService;
     }
 
     @Override
     public void purchaseTickets(Long accountId, TicketTypeRequest... ticketTypeRequests) throws InvalidPurchaseException {
         int totalCost = 0;
+        int adultTicketCount = 0;
+        int childTicketCount = 0;
+
         if(accountId <= 0){
             throw new InvalidPurchaseException();
         }
@@ -30,6 +36,9 @@ public class TicketServiceImpl implements TicketService {
             checkValidTicketRequest(request);
             if (request.getTicketType() == TicketTypeRequest.Type.ADULT){
                 adultTicket = true;
+                adultTicketCount += request.getNoOfTickets();
+            } else if (request.getTicketType() == TicketTypeRequest.Type.CHILD){
+                childTicketCount += request.getNoOfTickets();
             }
             totalCost += calculateTicketCost(request.getTicketType(),request.getNoOfTickets());
         }
@@ -37,6 +46,9 @@ public class TicketServiceImpl implements TicketService {
         if(!adultTicket){
             throw new InvalidPurchaseException();
         }
+        int totalSeats = adultTicketCount + childTicketCount;
+
+        seatReservationService.reserveSeat(accountId,totalSeats);
         paymentService.makePayment(accountId,totalCost);
     }
 

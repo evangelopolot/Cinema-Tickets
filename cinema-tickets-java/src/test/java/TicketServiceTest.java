@@ -6,6 +6,7 @@ import org.junit.jupiter.params.provider.CsvSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import thirdparty.paymentgateway.TicketPaymentService;
+import thirdparty.seatbooking.SeatReservationService;
 import uk.gov.dwp.uc.pairtest.TicketService;
 import uk.gov.dwp.uc.pairtest.TicketServiceImpl;
 import uk.gov.dwp.uc.pairtest.domain.TicketTypeRequest;
@@ -19,11 +20,13 @@ public class TicketServiceTest {
     private TicketTypeRequest typeRequest;
     @Mock
     private TicketPaymentService paymentService;
+    @Mock
+    private SeatReservationService seatReservationService;
 
     @BeforeEach
     public void setUp(){
         MockitoAnnotations.initMocks(this);
-        this.testService = new TicketServiceImpl(paymentService);
+        this.testService = new TicketServiceImpl(paymentService, seatReservationService);
     }
 
     @ParameterizedTest
@@ -63,6 +66,16 @@ public class TicketServiceTest {
         TicketTypeRequest typeRequest3 = new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1);
         testService.purchaseTickets(1L,typeRequest,typeRequest2,typeRequest3);
         verify(paymentService, times(1)).makePayment(1L,40);
+    }
+
+    @Test
+    @DisplayName("Test purchaseTicket given valid ticket requests correctly reserves seats for only adult and child tickets")
+    public void testPurchaseTicketOnlyReservesSeatsForAdultAndChildTickets(){
+        typeRequest = new TicketTypeRequest(TicketTypeRequest.Type.ADULT,1);
+        TicketTypeRequest typeRequest2 = new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2);
+        TicketTypeRequest typeRequest3 = new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1);
+        testService.purchaseTickets(1L,typeRequest,typeRequest2,typeRequest3);
+        verify(seatReservationService, times(1)).reserveSeat(1L,3);
     }
 
 
