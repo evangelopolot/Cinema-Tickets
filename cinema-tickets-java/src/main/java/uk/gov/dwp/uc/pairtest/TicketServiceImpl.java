@@ -28,6 +28,9 @@ public class TicketServiceImpl implements TicketService {
 
         boolean adultTicket = false;
         for (TicketTypeRequest request : ticketTypeRequests) {
+            if(request.getTicketType() == null){
+                throw new InvalidPurchaseException();
+            }
             int quantity = request.getNoOfTickets();
             if(quantity > MAXIMUM_NUMBER_OF_TICKETS || quantity < 0){
                 throw new InvalidPurchaseException();

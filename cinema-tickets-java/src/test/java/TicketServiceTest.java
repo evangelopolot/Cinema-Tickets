@@ -32,6 +32,12 @@ public class TicketServiceTest {
     public void testPurchaseTicketsGivenInvalidIDsThrowException(long input){
         assertThrows(InvalidPurchaseException.class, () -> testService.purchaseTickets(input));
     }
+    @Test
+    @DisplayName("test purchaseTicket when given an invalid ticket type, throws exception")
+    public void testPurchaseTicketThrowsAnExceptionWhenGivenInvalidTicketType(){
+        typeRequest = new TicketTypeRequest(null, 1);
+        assertThrows(InvalidPurchaseException.class, ()-> testService.purchaseTickets(2L, typeRequest));
+    }
 
     @ParameterizedTest
     @CsvSource({"21", "-1"})
@@ -55,7 +61,7 @@ public class TicketServiceTest {
         typeRequest = new TicketTypeRequest(TicketTypeRequest.Type.ADULT,1);
         TicketTypeRequest typeRequest2 = new TicketTypeRequest(TicketTypeRequest.Type.CHILD, 2);
         TicketTypeRequest typeRequest3 = new TicketTypeRequest(TicketTypeRequest.Type.INFANT, 1);
-        testService.purchaseTickets(1L,typeRequest,typeRequest2);
+        testService.purchaseTickets(1L,typeRequest,typeRequest2,typeRequest3);
         verify(paymentService, times(1)).makePayment(1L,40);
     }
 
